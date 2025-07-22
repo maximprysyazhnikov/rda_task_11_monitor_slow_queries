@@ -1,30 +1,25 @@
--- Створюємо БД ShopDB
-CREATE DATABASE IF NOT EXISTS ShopDB;
-USE ShopDB;
+-- Прибираємо попередню процедуру, якщо була
+DROP PROCEDURE IF EXISTS SeedData;
 
--- Створюємо тільки таблицю Products1 (InnoDB), бо вона працює швидше
-CREATE TABLE Products1 (
-    ID INT PRIMARY KEY AUTO_INCREMENT,
-    Name VARCHAR(255)
-) ENGINE=InnoDB;
-
--- Заповнюємо 100 000 записів
 DELIMITER //
 CREATE PROCEDURE SeedData()
 BEGIN
     DECLARE i INT DEFAULT 1;
+    DECLARE prod_name VARCHAR(255);  -- <--- Додано змінну для збереження назви продукту
+
     WHILE i <= 100000 DO
-        INSERT INTO Products1 (Name)
-        VALUES (
-            CASE
-                WHEN i = 42 THEN 'AwersomeProduct42'
-                ELSE CONCAT('Product', i)
-            END
-        );
+        -- Спершу визначаємо назву в змінну
+        IF i = 42 THEN
+            SET prod_name = 'AwersomeProduct42';
+        ELSE
+            SET prod_name = CONCAT('Product', i);
+        END IF;
+
+        -- Потім вставляємо значення змінної
+        INSERT INTO Products1 (Name) VALUES (prod_name);
+
         SET i = i + 1;
     END WHILE;
 END;
 //
 DELIMITER ;
-
-CALL SeedData();
